@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pumping Lemma Game Simulator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        .container {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .game-board {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        input, select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1em;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .error {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .success {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .highlight {
+            display: inline-block;
+            padding: 2px 5px;
+            border-radius: 3px;
+            margin: 0 2px;
+        }
+        .x-part {
+            background-color: #3498db;
+            color: white;
+        }
+        .y-part {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .z-part {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .game-step {
+            border-left: 3px solid #3498db;
+            padding-left: 15px;
+            margin: 15px 0;
+        }
+        .hidden {
+            display: none;
+        }
+        .language-info {
+            background-color: #f1f8fe;
+            border-left: 4px solid #3498db;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+        }
+        .instructions {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        #visualization {
+            font-family: monospace;
+            font-size: 1.2em;
+            margin: 15px 0;
+            line-height: 1.4;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <h1>Pumping Lemma Game Simulator</h1>
+    
+    <div class="instructions">
+        <h2>How to Play</h2>
+        <ol>
+            <li>The computer (opponent) chooses a pumping length p</li>
+            <li>You select a non-regular language and provide a string w from that language where |w| ≥ p</li>
+            <li>The opponent will decompose w into xyz, where |xy| ≤ p and |y| > 0</li>
+            <li>You choose a value of i to prove that xy<sup>i</sup>z is not in the language</li>
+            <li>The simulator verifies your claim</li>
+        </ol>
+    </div>
+
+    <div class="container">
+        <div class="language-info">
+            <h3>Available Languages</h3>
+            <ul>
+                <li><strong>L = {a<sup>n</sup>b<sup>n</sup> | n ≥ 0}</strong> - Equal number of a's followed by b's</li>
+                <li><strong>L = {a<sup>n</sup>b<sup>m</sup> | n ≥ m}</strong> - Number of a's is greater than or equal to number of b's</li>
+                <li><strong>L = {ww | w ∈ {a,b}*}</strong> - Strings that are repetitions of the same pattern</li>
+            </ul>
+            <div class="instructions">
+                <p><strong>Tip:</strong> The opponent uses advanced strategies to find decompositions where pumping is most likely to keep strings in the language. You'll need to be clever to find values of i that break the pattern!</p>
+            </div>
+        </div>
+        
+        <div class="game-board">
+            <div class="game-step" id="step1">
+                <h3>Step 1: Opponent chooses pumping length p</h3>
+                <p>The opponent has chosen pumping length: <span id="pumping-length" class="highlight">5</span></p>
+                <button id="new-p-button">Get New Pumping Length</button>
+            </div>
+            
+            <div class="game-step" id="step2">
+                <h3>Step 2: Choose a language and provide a string</h3>
+                <label for="language-select">Select a non-regular language:</label>
+                <select id="language-select">
+                    <option value="anbn">L = {a^n b^n | n ≥ 0}</option>
+                    <option value="anbm">L = {a^n b^m | n ≥ m}</option>
+                    <option value="ww">L = {ww | w ∈ {a,b}*}</option>
+                </select>
+                <br><br>
+                <label for="string-input">Enter a string in the language (length ≥ p):</label>
+                <input type="text" id="string-input" placeholder="Enter your string...">
+                <p id="string-error" class="error hidden">This string is not in the selected language or is too short!</p>
+                <button id="submit-string-button">Submit String</button>
+            </div>
+            
+            <div class="game-step hidden" id="step3">
+                <h3>Step 3: Opponent decomposes the string</h3>
+                <p>Your string has been decomposed as follows:</p>
+                <div id="visualization"></div>
+                <p>Where:</p>
+                <ul>
+                    <li>x = <span id="x-value"></span></li>
+                    <li>y = <span id="y-value"></span> (This is the part that will be pumped)</li>
+                    <li>z = <span id="z-value"></span></li>
+                </ul>
+                <p>Remember the pumping lemma conditions: |xy| ≤ p and |y| > 0</p>
+            </div>
+            
+            <div class="game-step hidden" id="step4">
+                <h3>Step 4: Choose pumping value i</h3>
+                <p>Choose a value of i such that xy<sup>i</sup>z is not in the language:</p>
+                <input type="number" id="i-value" min="0" value="2">
+                <button id="check-result-button">Check Result</button>
+            </div>
+            
+            <div class="game-step hidden" id="step5">
+                <h3>Step 5: Result</h3>
+                <p id="result-message"></p>
+                <div id="pumped-string-display"></div>
+                <div id="opponent-analysis" class="hidden">
+                    <h4>Opponent Analysis</h4>
+                    <p id="opponent-thoughts"></p>
+                </div>
+                <button id="reveal-strategy-button">Reveal Opponent Strategy</button>
+                <button id="play-again-button">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let gameState = {
+            pumpingLength: 5,
+            selectedLanguage: "anbn",
+            userString: "",
+            x: "",
+            y: "",
+            z: "",
+            iValue: 2,
+            strategy: "",
+            validIValues: []
+        };
+
+        // DOM Elements
+        const pumpingLengthEl = document.getElementById("pumping-length");
+        const newPButton = document.getElementById("new-p-button");
+        const languageSelect = document.getElementById("language-select");
+        const stringInput = document.getElementById("string-input");
+        const stringError = document.getElementById("string-error");
+        const submitStringButton = document.getElementById("submit-string-button");
+        const step3El = document.getElementById("step3");
+        const visualizationEl = document.getElementById("visualization");
+        const xValueEl = document.getElementById("x-value");
+        const yValueEl = document.getElementById("y-value");
+        const zValueEl = document.getElementById("z-value");
+        const step4El = document.getElementById("step4");
+        const iValueInput = document.getElementById("i-value");
+        const checkResultButton = document.getElementById("check-result-button");
+        const step5El = document.getElementById("step5");
+        const resultMessageEl = document.getElementById("result-message");
+        const pumpedStringDisplayEl = document.getElementById("pumped-string-display");
+        const playAgainButton = document.getElementById("play-again-button");
+        const revealStrategyButton = document.getElementById("reveal-strategy-button");
+        const opponentAnalysisEl = document.getElementById("opponent-analysis");
+        const opponentThoughtsEl = document.getElementById("opponent-thoughts");
+
+        // Language checkers
+        const languageCheckers = {
+            "anbn": (str) => {
+                const pattern = /^a*b*$/;
+                if (!pattern.test(str)) return false;
+                
+                const aCount = (str.match(/a/g) || []).length;
+                const bCount = (str.match(/b/g) || []).length;
+                return aCount === bCount;
+            },
+            
+            "anbm": (str) => {
+                const pattern = /^a*b*$/;
+                if (!pattern.test(str)) return false;
+                
+                const aCount = (str.match(/a/g) || []).length;
+                const bCount = (str.match(/b/g) || []).length;
+                return aCount >= bCount;
+            },
+            
+            "ww": (str) => {
+                if (str.length % 2 !== 0) return false;
+                
+                const half = str.length / 2;
+                const firstHalf = str.substring(0, half);
+                const secondHalf = str.substring(half);
+                return firstHalf === secondHalf;
+            }
+        };
+
+        // Generate a random pumping length between 3 and 10
+        // TODO: Implement an abstract pumping length p
+        function generatePumpingLength() {
+            return Math.floor(Math.random() * 8) + 3;
+        }
+
+        // Update the displayed pumping length
+        function updatePumpingLength() {
+            gameState.pumpingLength = generatePumpingLength();
+            pumpingLengthEl.textContent = gameState.pumpingLength;
+        }
+
+        // Check if the string is valid for the selected language
+        // TODO: Allow user to input a string in terms of an abstract pumping length p
+        function isStringValid(str, language) {
+            return languageCheckers[language](str) && str.length >= gameState.pumpingLength;
+        }
+
+        // Decompose the string according to pumping lemma
+        function decomposeString(str) {
+            // Reset the strategy and valid i values
+            gameState.strategy = "";
+            gameState.validIValues = [];
+            
+            const p = gameState.pumpingLength;
+            
+            // Advanced strategy: Try to find a decomposition where
+            // pumping (any i) keeps the string in the language
+            
+            if (gameState.selectedLanguage === "anbn") {
+                const aCount = (str.match(/a/g) || []).length;
+                const bCount = (str.match(/b/g) || []).length;
+                
+                // Strategic decomposition based on string structure
+                if (aCount >= p) {
+                    // Strategy 1: Take only a's for y
+                    // This is hard to break since pumping just adds more a's
+                    const yLength = Math.min(Math.floor(p/2), aCount);
+                    const xLength = Math.min(p - yLength, aCount - yLength);
+                    
+                    gameState.x = str.substring(0, xLength);
+                    gameState.y = str.substring(xLength, xLength + yLength);
+                    gameState.z = str.substring(xLength + yLength);
+                } else {
+                    // Strategy 2: Try to make y entirely b's if possible
+                    // Makes it harder for the player to break with pumping
+                    if (str.indexOf('b') < p) {
+                        // We can get some b's in y
+                        const firstBPosition = str.indexOf('b');
+                        const yStart = Math.max(firstBPosition, 1);
+                        const yLength = Math.min(p - yStart, Math.floor(p/2));
+                        
+                        gameState.x = str.substring(0, yStart);
+                        gameState.y = str.substring(yStart, yStart + yLength);
+                        gameState.z = str.substring(yStart + yLength);
+                    } else {
+                        // All a's in the first p characters
+                        gameState.x = str.substring(0, p-1);
+                        gameState.y = str.substring(p-1, p);
+                        gameState.z = str.substring(p);
+                    }
+                }
+            } 
+            else if (gameState.selectedLanguage === "anbm") {
+                const aCount = (str.match(/a/g) || []).length;
+                const bIndex = str.indexOf('b');
+                
+                // Several smarter strategies for a^n b^m where n ≥ m
+                if (bIndex < 0 || bIndex >= p) {
+                    // All a's in the first p characters, or no b's at all
+                    // Strategy: take only a's for y
+                    const yLength = Math.min(Math.floor(p/2), str.length - 1);
+                    const xLength = Math.min(p - yLength, str.length - yLength - 1);
+                    
+                    gameState.x = str.substring(0, xLength);
+                    gameState.y = str.substring(xLength, xLength + yLength);
+                    gameState.z = str.substring(xLength + yLength);
+                } else {
+                    // String has both a's and b's within pumping length
+                    // Try to make y entirely b's if possible - best strategy here
+                    // as it forces the player to pump more b's which can break n ≥ m
+                    if (bIndex < p) {
+                        const yStart = Math.max(bIndex, 1);
+                        const yLength = Math.min(p - yStart, str.length - yStart - 1);
+                        
+                        gameState.x = str.substring(0, yStart);
+                        gameState.y = str.substring(yStart, yStart + yLength);
+                        gameState.z = str.substring(yStart + yLength);
+                    } else {
+                        // Try to use a combination of a's and b's
+                        gameState.x = str.substring(0, p-2);
+                        gameState.y = str.substring(p-2, p);
+                        gameState.z = str.substring(p);
+                    }
+                }
+            }
+            else if (gameState.selectedLanguage === "ww") {
+                const half = str.length / 2;
+                
+                // Smart strategy for ww language:
+                if (str.length > 2*p) {
+                    // Try to pick a y that's repeatable
+                    // For a repeating pattern, choose y that preserves the pattern
+                    const firstChar = str.charAt(0);
+                    let repeatLength = 1;
+                    
+                    // Find if there's a repeating pattern at the start
+                    for (let i = 2; i <= Math.min(half, p/2); i++) {
+                        const pattern = str.substring(0, i);
+                        const nextChunk = str.substring(i, 2*i);
+                        if (pattern === nextChunk) {
+                            repeatLength = i;
+                            break;
+                        }
+                    }
+                    
+                    if (repeatLength > 1) {
+                        // If we found a repeating pattern, use that
+                        gameState.x = str.substring(0, repeatLength);
+                        gameState.y = str.substring(repeatLength, 2*repeatLength);
+                        gameState.z = str.substring(2*repeatLength);
+                    } else {
+                        // No obvious pattern, default strategy
+                        gameState.x = str.substring(0, Math.floor(p/2));
+                        gameState.y = str.substring(Math.floor(p/2), p);
+                        gameState.z = str.substring(p);
+                    }
+                } else {
+                    // For shorter strings, try to straddle the midpoint
+                    const midPoint = Math.floor(str.length / 2);
+                    const yStart = Math.max(1, midPoint - Math.floor(p/4));
+                    const yLength = Math.min(str.length - yStart - 1, Math.floor(p/2));
+                    
+                    gameState.x = str.substring(0, yStart);
+                    gameState.y = str.substring(yStart, yStart + yLength);
+                    gameState.z = str.substring(yStart + yLength);
+                }
+            }
+            
+            // Ensure |xy| ≤ p and |y| > 0
+            if (gameState.x.length + gameState.y.length > p) {
+                const excess = gameState.x.length + gameState.y.length - p;
+                gameState.z = gameState.y.substring(gameState.y.length - excess) + gameState.z;
+                gameState.y = gameState.y.substring(0, gameState.y.length - excess);
+            }
+            
+            if (gameState.y.length === 0) {
+                // If somehow y is empty, take the last character of x
+                gameState.y = gameState.x.charAt(gameState.x.length - 1);
+                gameState.x = gameState.x.substring(0, gameState.x.length - 1);
+            }
+            
+            // Final validation of the decomposition rules
+            if (gameState.y.length === 0 || gameState.x.length + gameState.y.length > p) {
+                // Fallback strategy if smart strategy somehow failed
+                const yLength = Math.min(Math.floor(p/2), str.length - 1);
+                const xLength = Math.min(p - yLength, str.length - yLength - 1);
+                
+                gameState.x = str.substring(0, xLength);
+                gameState.y = str.substring(xLength, xLength + yLength);
+                gameState.z = str.substring(xLength + yLength);
+            }
+        }
+
+        // Display the decomposed string with highlighting
+        function visualizeDecomposition() {
+            const { x, y, z } = gameState;
+            
+            visualizationEl.innerHTML = `
+                <span class="highlight x-part">${x}</span><span class="highlight y-part">${y}</span><span class="highlight z-part">${z}</span>
+            `;
+            
+            xValueEl.textContent = x;
+            yValueEl.textContent = y;
+            zValueEl.textContent = z;
+        }
+
+        // Generate the pumped string based on i
+        function generatePumpedString(i) {
+            const { x, y, z } = gameState;
+            let pumped = x;
+            
+            for (let j = 0; j < i; j++) {
+                pumped += y;
+            }
+            
+            pumped += z;
+            return pumped;
+        }
+
+        // Check if the pumping succeeded
+        function checkPumpingResult(i) {
+            const pumpedString = generatePumpedString(i);
+            const language = gameState.selectedLanguage;
+            
+            return {
+                pumpedString,
+                isInLanguage: languageCheckers[language](pumpedString)
+            };
+        }
+        
+        // Analyze the string and generate opponent strategy explanation
+        function generateOpponentStrategy() {
+            const { x, y, z, selectedLanguage } = gameState;
+            let strategy = "";
+            let validIValues = [];
+            
+            if (selectedLanguage === "anbn") {
+                const yContainsA = y.includes('a');
+                const yContainsB = y.includes('b');
+                
+                if (yContainsA && !yContainsB) {
+                    strategy = "I chose to include only a's in the pumping segment y. This makes it challenging because pumping adds more a's without adding b's. This breaks the balance requirement easily with i > 1, but if you pick i = 0 you might get lucky if the string maintains balance.";
+                    validIValues = [0, 2, 3, 4, 5];
+                } else if (!yContainsA && yContainsB) {
+                    strategy = "I chose to include only b's in the pumping segment y. This means pumping adds more b's without adding a's, breaking the balance. Try i = 0 or i > 1 to break the equality requirement.";
+                    validIValues = [0, 2, 3, 4, 5];
+                } else if (yContainsA && yContainsB) {
+                    strategy = "I strategically included both a's and b's in y. If they're balanced, pumping might preserve the property for some values. Try i = 0 or a larger i value to break the pattern.";
+                    validIValues = [0, 3, 4, 5];
+                }
+            } 
+            else if (selectedLanguage === "anbm") {
+                const yContainsA = y.includes('a');
+                const yContainsB = y.includes('b');
+                
+                if (yContainsA && !yContainsB) {
+                    strategy = "I chose to include only a's in the pumping segment y. This is a challenging decomposition since pumping (i > 1) adds more a's, which keeps n ≥ m. Try i = 0 to remove some a's.";
+                    validIValues = [0];
+                } else if (!yContainsA && yContainsB) {
+                    strategy = "I chose to include only b's in the pumping segment y. This means pumping (i > 1) adds more b's without adding a's, potentially breaking n ≥ m if enough b's are added.";
+                    validIValues = [2, 3, 4];
+                } else if (yContainsA && yContainsB) {
+                    const aInY = (y.match(/a/g) || []).length;
+                    const bInY = (y.match(/b/g) || []).length;
+                    
+                    if (aInY > bInY) {
+                        strategy = "I included more a's than b's in y. This makes pumping (i > 1) preserve n ≥ m. Try i = 0 to remove a's and potentially break the condition.";
+                        validIValues = [0];
+                    } else if (aInY < bInY) {
+                        strategy = "I included more b's than a's in y. Pumping (i > 1) will add more b's than a's, which might eventually violate n ≥ m.";
+                        validIValues = [2, 3, 4];
+                    } else {
+                        strategy = "I included equal numbers of a's and b's in y. Creative decomposition! Try extreme values of i.";
+                        validIValues = [0, 3, 4];
+                    }
+                }
+            }
+            else if (selectedLanguage === "ww") {
+                const half = gameState.userString.length / 2;
+                const ySpansMidpoint = (x.length < half && x.length + y.length > half);
+                
+                if (ySpansMidpoint) {
+                    strategy = "I chose y to span across the midpoint of the string, making it very difficult to maintain the ww pattern when pumping. Any i ≠ 1 should work.";
+                    validIValues = [0, 2, 3];
+                } else if (x.length + y.length <= half) {
+                    strategy = "I chose y within the first half of the string. Pumping changes the first half without changing the second half, breaking the repeated pattern. Try any i ≠ 1.";
+                    validIValues = [0, 2, 3];
+                } else {
+                    strategy = "I chose y entirely within the second half of the string. Pumping changes the second half without matching changes in the first half. Try any i ≠ 1.";
+                    validIValues = [0, 2, 3];
+                }
+            }
+            
+            // Fallback if no specific strategy identified
+            if (!strategy) {
+                strategy = "I used a general strategy of selecting y within the pumping length constraints. Try different i values to find one that produces a string outside the language.";
+                validIValues = [0, 2, 3, 4];
+            }
+            
+            return { strategy, validIValues };
+        }
+
+        // Event listeners
+        newPButton.addEventListener("click", () => {
+            updatePumpingLength();
+        });
+
+        submitStringButton.addEventListener("click", () => {
+            const str = stringInput.value;
+            const language = languageSelect.value;
+            gameState.selectedLanguage = language;
+            
+            if (isStringValid(str, language)) {
+                stringError.classList.add("hidden");
+                gameState.userString = str;
+                
+                // Decompose the string
+                decomposeString(str);
+                
+                // Display the decomposition
+                visualizeDecomposition();
+                
+                // Show next steps
+                step3El.classList.remove("hidden");
+                step4El.classList.remove("hidden");
+            } else {
+                stringError.classList.remove("hidden");
+            }
+        });
+
+        checkResultButton.addEventListener("click", () => {
+            const i = parseInt(iValueInput.value);
+            gameState.iValue = i;
+            
+            const result = checkPumpingResult(i);
+            
+            // Generate the opponent's strategy explanation
+            const strategyInfo = generateOpponentStrategy();
+            gameState.strategy = strategyInfo.strategy;
+            gameState.validIValues = strategyInfo.validIValues;
+            
+            // Display results
+            let message;
+            if (!result.isInLanguage) {
+                message = `<span class="success">✓ Success!</span> You've shown that xy<sup>${i}</sup>z is not in the language.`;
+            } else {
+                message = `<span class="error">✗ Try again!</span> xy<sup>${i}</sup>z is still in the language. Choose a different value of i.`;
+            }
+            
+            resultMessageEl.innerHTML = message;
+            
+            // Display the pumped string
+            pumpedStringDisplayEl.innerHTML = `
+                <p>Pumped string xy<sup>${i}</sup>z = ${result.pumpedString}</p>
+            `;
+            
+            // Hide the opponent analysis initially
+            opponentAnalysisEl.classList.add("hidden");
+            
+            step5El.classList.remove("hidden");
+        });
+        
+        revealStrategyButton.addEventListener("click", () => {
+            // Show the opponent's strategy
+            opponentAnalysisEl.classList.remove("hidden");
+            opponentThoughtsEl.innerHTML = gameState.strategy;
+            
+            if (gameState.validIValues.length > 0) {
+                opponentThoughtsEl.innerHTML += `<p><strong>Hint:</strong> Try i values like: ${gameState.validIValues.join(', ')}</p>`;
+            }
+            
+            // Hide the reveal button
+            revealStrategyButton.style.display = "none";
+        });
+
+        playAgainButton.addEventListener("click", () => {
+            // Reset the game
+            stringInput.value = "";
+            iValueInput.value = "2";
+            stringError.classList.add("hidden");
+            step3El.classList.add("hidden");
+            step4El.classList.add("hidden");
+            step5El.classList.add("hidden");
+            
+            // Reset the reveal button
+            revealStrategyButton.style.display = "inline-block";
+            
+            // Get a new pumping length
+            updatePumpingLength();
+        });
+
+        // Initialize the game
+        updatePumpingLength();
+    </script>
+</body>
+</html>

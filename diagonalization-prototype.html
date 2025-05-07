@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagonalization Proof</title>
+    <style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  color: #333;
+  background-color: #f5f7fa;
+}
+
+/* Container */
+.container {
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Text */
+.title {
+  font-size: 28px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+  color: #2c3e50;
+}
+
+.section-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #2c3e50;
+}
+
+.subsection-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.description {
+  margin-bottom: 20px;
+}
+
+.note {
+  font-size: 14px;
+  font-style: italic;
+  margin-top: 10px;
+  color: #666;
+}
+
+/* Form elements */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.select-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+/* Buttons */
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.primary {
+  background-color: #3498db;
+  color: white;
+}
+
+.primary:hover {
+  background-color: #2980b9;
+}
+
+.secondary {
+  background-color: #f39c12;
+  color: white;
+}
+
+.secondary:hover {
+  background-color: #e67e22;
+}
+
+.disabled {
+  background-color: #95a5a6 !important;
+  cursor: not-allowed;
+}
+
+.digit-button {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 4px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 18px;
+  cursor: pointer;
+  background-color: white;
+}
+
+.digit-button.modified {
+  border-color: #2ecc71;
+  background-color: #eafaf1;
+}
+
+/* Layouts */
+.progress-bar {
+  display: flex;
+  margin-bottom: 20px;
+  background-color: #ecf0f1;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.step {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+}
+
+.step.active {
+  background-color: #3498db;
+  color: white;
+  font-weight: bold;
+}
+
+.step.completed {
+  background-color: #74b9ff;
+}
+
+.content-box {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  border: 1px solid #e9ecef;
+}
+
+.digit-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.label {
+  font-weight: 600;
+  margin-right: 10px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Tables */
+.table-container {
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-header, .table-cell {
+  border: 1px solid #ddd;
+  padding: 10px;
+}
+
+.table-header {
+  background-color: #f1f1f1;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.bold {
+  font-weight: 600;
+}
+
+.highlight {
+  background-color: #fff8e1;
+}
+
+.success {
+  background-color: #e8f5e9;
+}
+
+.error {
+  background-color: #ffebee;
+}
+
+.success-text {
+  color: #2ecc71;
+}
+
+.error-text {
+  color: #e74c3c;
+}
+
+.new-element-row {
+  background-color: #f5f5f5;
+}
+
+/* Message boxes */
+.message-box {
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  border-left: 4px solid;
+}
+
+.message-box.success {
+  background-color: #e8f5e9;
+  border-left-color: #2ecc71;
+}
+
+.message-box.error {
+  background-color: #ffebee;
+  border-left-color: #e74c3c;
+}
+
+.message-box.info {
+  background-color: #e3f2fd;
+  border-left-color: #3498db;
+}
+
+.hint-box {
+  padding: 15px;
+  margin-top: 20px;
+  background-color: #fff8e1;
+  border-left: 4px solid #f39c12;
+  border-radius: 4px;
+}
+
+.warning-alert {
+  padding: 15px;
+  background-color: #fff8e1;
+  border-left: 4px solid #f39c12;
+  margin-top: 10px;
+  border-radius: 4px;
+}
+
+.success-box {
+  padding: 15px;
+  background-color: #e8f5e9;
+  border-left: 4px solid #2ecc71;
+  margin-bottom: 20px;
+  border-radius: 4px;
+}
+
+.info-box {
+  padding: 15px;
+  background-color: #e3f2fd;
+  border-left: 4px solid #3498db;
+  border-radius: 4px;
+}
+
+.numbered-list {
+  padding-left: 20px;
+  margin-top: 10px;
+}
+
+.numbered-list li {
+  margin-bottom: 8px;
+}
+
+.hidden {
+  display: none;
+}
+
+    </style>
+</head>
+<body>
+    <div id="app" class="container">
+        <h1 class="title">Diagonalization Proof</h1>
+        
+        <div class="progress-bar">
+            <div class="step active" data-step="1">Step 1</div>
+            <div class="step" data-step="2">Step 2</div>
+            <div class="step" data-step="3">Step 3</div>
+            <div class="step" data-step="4">Step 4</div>
+        </div>
+        
+        <!-- Step 1 -->
+        <div id="step1" class="content-box">
+            <h2 class="section-title">Step 1: Make an assumption</h2>
+            <p class="description">To prove P(N) is uncountable using diagonalization, we need to start with an assumption.</p>
+            
+            <div class="form-group">
+                <label class="form-label">Select your assumption:</label>
+                <select id="assumption-select" class="select-input">
+                    <option value="">-- Select --</option>
+                    <option value="countable">Assume P(N) is countable</option>
+                    <option value="uncountable">Assume P(N) is uncountable</option>
+                </select>
+            </div>
+            
+            <div id="assumption-warning" class="warning-alert hidden">
+                <p>This assumption won't help with a proof by contradiction. Try again!</p>
+            </div>
+        </div>
+        
+        <!-- Step 2 -->
+        <div id="step2" class="content-box hidden">
+            <h2 class="section-title">Step 2: Examine the enumeration</h2>
+            <p class="description">If P(N) is countable, we can list all its elements. Each row represents a subset of N (shown as a binary sequence where 1 means the number is in the subset).</p>
+            
+            <div class="table-container">
+                <table id="enumeration-table" class="data-table">
+                    <thead>
+                        <tr>
+                            <th class="table-header">Set</th>
+                            <!-- Column headers will be added dynamically -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Table content will be added dynamically -->
+                    </tbody>
+                </table>
+            </div>
+            <p class="note">Note: The highlighted diagonal shows digit positions where we'll create our new set.</p>
+        </div>
+        
+        <!-- Step 3 -->
+        <div id="step3" class="content-box hidden">
+            <h2 class="section-title">Step 3: Construct a missing element</h2>
+            <p class="description">Click on each digit in the diagonal sequence below to flip it (change 0 to 1 or 1 to 0). This creates a new element that differs from every enumerated element at at least one position.</p>
+            
+            <div class="digit-container" id="diagonal-digits">
+                <div class="label">New element: </div>
+                <!-- Diagonal digits will be added dynamically -->
+            </div>
+            
+            <div class="table-container">
+                <table id="comparison-table" class="data-table">
+                    <thead>
+                        <tr>
+                            <th class="table-header">Set</th>
+                            <!-- Column headers will be added dynamically -->
+                            <th class="table-header">Differs at</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Table content will be added dynamically -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <button id="check-answer" class="btn primary">
+                Check My Answer
+            </button>
+        </div>
+        
+        <!-- Step 4 -->
+        <div id="step4" class="content-box hidden">
+            <h2 class="section-title">Step 4: Complete the proof</h2>
+            <p class="description">Excellent! You've successfully constructed a new element that isn't in our enumeration.</p>
+            
+            <div class="success-box">
+                <h3 class="subsection-title">Proof Completed:</h3>
+                <ol class="numbered-list">
+                    <li>We assumed P(N) is countable.</li>
+                    <li>This would mean we can enumerate all elements of P(N).</li>
+                    <li>Using diagonalization, we constructed a new element that differs from every enumerated element.</li>
+                    <li>This new element must be in P(N) but isn't in our enumeration.</li>
+                    <li>This contradicts our assumption that we listed all elements of P(N).</li>
+                    <li>Therefore, P(N) must be uncountable.</li>
+                </ol>
+            </div>
+            
+            <div class="info-box">
+                <h3 class="subsection-title">Why This Matters:</h3>
+                <p>Cantor's diagonalization proof shows there are different sizes of infinity. The set of natural numbers is countably infinite, but the power set of the natural numbers is uncountably infinite.</p>
+            </div>
+        </div>
+        
+        <div id="message-area" class="message-box info hidden">
+            <p id="message-text"></p>
+        </div>
+        
+        <div class="button-container">
+            <button id="hint-button" class="btn secondary">
+                Show Hint
+            </button>
+            
+            <button id="next-button" class="btn primary">
+                Next Step
+            </button>
+        </div>
+        
+        <div id="hint-box" class="hint-box hidden">
+            <p><strong>Hint:</strong> <span id="hint-text"></span></p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // State variables
+            let currentStep = 1;
+            let table = [];
+            let diagonalNumber = [];
+            let modifiedDiagonal = [];
+            let isCorrect = null;
+            let showHint = false;
+            let assumption = '';
+            
+            // DOM elements
+            const assumptionSelect = document.getElementById('assumption-select');
+            const assumptionWarning = document.getElementById('assumption-warning');
+            const nextButton = document.getElementById('next-button');
+            const hintButton = document.getElementById('hint-button');
+            const hintBox = document.getElementById('hint-box');
+            const hintText = document.getElementById('hint-text');
+            const messageArea = document.getElementById('message-area');
+            const messageText = document.getElementById('message-text');
+            const checkAnswerButton = document.getElementById('check-answer');
+            const diagonalDigitsContainer = document.getElementById('diagonal-digits');
+            
+            // Initialize the table with random binary sequences
+            function initializeTable() {
+                table = [];
+                for (let i = 0; i < 10; i++) {
+                    const row = [];
+                    for (let j = 0; j < 10; j++) {
+                        row.push(Math.round(Math.random()));
+                    }
+                    table.push(row);
+                }
+                
+                // Extract the diagonal
+                diagonalNumber = table.map((row, index) => row[index]);
+                modifiedDiagonal = [...diagonalNumber];
+                
+                renderTable();
+                renderDiagonalDigits();
+            }
+            
+            // Render the enumeration table
+            function renderTable() {
+                const enumerationTable = document.getElementById('enumeration-table');
+                const comparisonTable = document.getElementById('comparison-table');
+                
+                // Clear existing content
+                enumerationTable.querySelector('thead tr').innerHTML = '<th class="table-header">Set</th>';
+                enumerationTable.querySelector('tbody').innerHTML = '';
+                
+                comparisonTable.querySelector('thead tr').innerHTML = '<th class="table-header">Set</th>';
+                comparisonTable.querySelector('tbody').innerHTML = '';
+                
+                // Add column headers
+                for (let i = 0; i < 10; i++) {
+                    const th = document.createElement('th');
+                    th.className = 'table-header';
+                    th.textContent = i;
+                    enumerationTable.querySelector('thead tr').appendChild(th.cloneNode(true));
+                    comparisonTable.querySelector('thead tr').appendChild(th.cloneNode(true));
+                }
+                
+                // Add "Differs at" column to comparison table
+                const differsAtTh = document.createElement('th');
+                differsAtTh.className = 'table-header';
+                differsAtTh.textContent = 'Differs at';
+                comparisonTable.querySelector('thead tr').appendChild(differsAtTh);
+                
+                // Add rows to enumeration table
+                for (let rowIndex = 0; rowIndex < table.length; rowIndex++) {
+                    const tr = document.createElement('tr');
+                    
+                    const tdSet = document.createElement('td');
+                    tdSet.className = 'table-cell bold';
+                    tdSet.textContent = 'S' + (rowIndex + 1);
+                    tr.appendChild(tdSet);
+                    
+                    for (let colIndex = 0; colIndex < table[rowIndex].length; colIndex++) {
+                        const td = document.createElement('td');
+                        td.className = `table-cell text-center ${rowIndex === colIndex ? 'highlight' : ''}`;
+                        td.textContent = table[rowIndex][colIndex];
+                        tr.appendChild(td);
+                    }
+                    
+                    enumerationTable.querySelector('tbody').appendChild(tr);
+                }
+                
+                // Add rows to comparison table
+                for (let rowIndex = 0; rowIndex < table.length; rowIndex++) {
+                    const tr = document.createElement('tr');
+                    
+                    const tdSet = document.createElement('td');
+                    tdSet.className = 'table-cell bold';
+                    tdSet.textContent = 'S' + (rowIndex + 1);
+                    tr.appendChild(tdSet);
+                    
+                    for (let colIndex = 0; colIndex < table[rowIndex].length; colIndex++) {
+                        const td = document.createElement('td');
+                        const isDiagonal = rowIndex === colIndex;
+                        const isDifferent = isDiagonal && modifiedDiagonal[colIndex] !== table[rowIndex][colIndex];
+                        
+                        td.className = `table-cell text-center ${
+                            isDiagonal ? (isDifferent ? 'success' : 'error') : ''
+                        }`;
+                        td.textContent = table[rowIndex][colIndex];
+                        tr.appendChild(td);
+                    }
+                    
+                    // Add "Differs at" cell
+                    const tdDiffers = document.createElement('td');
+                    tdDiffers.className = 'table-cell text-center';
+                    
+                    if (modifiedDiagonal[rowIndex] !== table[rowIndex][rowIndex]) {
+                        const span = document.createElement('span');
+                        span.className = 'success-text';
+                        span.textContent = 'Position ' + rowIndex;
+                        tdDiffers.appendChild(span);
+                    } else {
+                        const span = document.createElement('span');
+                        span.className = 'error-text';
+                        span.textContent = 'None!';
+                        tdDiffers.appendChild(span);
+                    }
+                    
+                    tr.appendChild(tdDiffers);
+                    
+                    comparisonTable.querySelector('tbody').appendChild(tr);
+                }
+                
+                // Add "New" row to comparison table
+                const newRow = document.createElement('tr');
+                newRow.className = 'new-element-row';
+                
+                const tdNew = document.createElement('td');
+                tdNew.className = 'table-cell bold';
+                tdNew.textContent = 'New';
+                newRow.appendChild(tdNew);
+                
+                for (let i = 0; i < modifiedDiagonal.length; i++) {
+                    const td = document.createElement('td');
+                    td.className = 'table-cell text-center';
+                    td.textContent = modifiedDiagonal[i];
+                    newRow.appendChild(td);
+                }
+                
+                // Empty cell for "Differs at" column
+                newRow.appendChild(document.createElement('td'));
+                
+                comparisonTable.querySelector('tbody').appendChild(newRow);
+            }
+            
+            // Render the diagonal digits that can be clicked
+            function renderDiagonalDigits() {
+                // Clear existing content except the label
+                const label = diagonalDigitsContainer.querySelector('.label');
+                diagonalDigitsContainer.innerHTML = '';
+                diagonalDigitsContainer.appendChild(label);
+                
+                // Add digit buttons
+                for (let i = 0; i < modifiedDiagonal.length; i++) {
+                    const button = document.createElement('button');
+                    button.className = `digit-button ${modifiedDiagonal[i] !== diagonalNumber[i] ? 'modified' : ''}`;
+                    button.textContent = modifiedDiagonal[i];
+                    button.dataset.index = i;
+                    
+                    button.addEventListener('click', function() {
+                        if (currentStep !== 3) return;
+                        
+                        const index = parseInt(this.dataset.index);
+                        modifiedDiagonal[index] = modifiedDiagonal[index] === 0 ? 1 : 0;
+                        isCorrect = null;
+                        hideMessage();
+                        
+                        renderDiagonalDigits();
+                        renderTable();
+                    });
+                    
+                    diagonalDigitsContainer.appendChild(button);
+                }
+            }
+            
+            // Handle the assumption select change
+            assumptionSelect.addEventListener('change', function() {
+                assumption = this.value;
+                assumptionWarning.classList.toggle('hidden', assumption !== 'uncountable');
+                hideMessage();
+            });
+            
+            // Handle the next button click
+            nextButton.addEventListener('click', function() {
+                if (currentStep === 1 && assumption === '') {
+                    showMessage('Please select an assumption first.', 'info');
+                    return;
+                }
+                
+                if (currentStep === 1 && assumption === 'uncountable') {
+                    return;
+                }
+                
+                if (currentStep === 3 && isCorrect === null) {
+                    return;
+                }
+                
+                goToNextStep();
+            });
+            
+            // Handle the hint button click
+            hintButton.addEventListener('click', function() {
+                showHint = !showHint;
+                this.textContent = showHint ? 'Hide Hint' : 'Show Hint';
+                hintBox.classList.toggle('hidden', !showHint);
+                updateHintText();
+            });
+            
+            // Handle the check answer button click
+            checkAnswerButton.addEventListener('click', function() {
+                const allDifferent = table.every((row, rowIndex) => {
+                    return row[rowIndex] !== modifiedDiagonal[rowIndex];
+                });
+                
+                if (allDifferent) {
+                    isCorrect = true;
+                    showMessage("Correct! This new number differs from every number in the enumeration at at least one position. This contradicts our assumption that we listed all elements of P(N).", 'success');
+                    setTimeout(() => goToNextStep(), 2000);
+                } else {
+                    isCorrect = false;
+                    showMessage("Not quite right. Make sure your new number differs from each number in the enumeration at the diagonal position.", 'error');
+                }
+            });
+            
+            // Go to the next step
+            function goToNextStep() {
+                document.getElementById(`step${currentStep}`).classList.add('hidden');
+                currentStep++;
+                document.getElementById(`step${currentStep}`).classList.remove('hidden');
+                
+                // Update progress bar
+                document.querySelectorAll('.progress-bar .step').forEach((step, index) => {
+                    const stepNum = index + 1;
+                    step.classList.remove('active', 'completed');
+                    if (stepNum === currentStep) {
+                        step.classList.add('active');
+                    } else if (stepNum < currentStep) {
+                        step.classList.add('completed');
+                    }
+                });
+                
+                // Hide next button on step 3 until answer is checked correctly
+                nextButton.classList.toggle('hidden', currentStep === 3 || currentStep === 4);
+                
+                // Hide hint
+                showHint = false;
+                hintButton.textContent = 'Show Hint';
+                hintBox.classList.add('hidden');
+                hideMessage();
+                
+                // Initialize table on step 2
+                if (currentStep === 2) {
+                    initializeTable();
+                }
+                
+                updateHintText();
+            }
+            
+            // Show a message
+            function showMessage(text, type) {
+                messageText.textContent = text;
+                messageArea.className = `message-box ${type}`;
+                messageArea.classList.remove('hidden');
+            }
+            
+            // Hide the message
+            function hideMessage() {
+                messageArea.classList.add('hidden');
+            }
+            
+            // Update the hint text based on current step
+            function updateHintText() {
+                switch (currentStep) {
+                    case 1:
+                        hintText.textContent = "For a proof by contradiction, we need to assume P(N) is countable.";
+                        break;
+                    case 2:
+                        hintText.textContent = "The table represents a supposed enumeration of all elements of P(N).";
+                        break;
+                    case 3:
+                        hintText.textContent = "Change the diagonal digits to create a new element that differs from every enumerated element at at least one position!";
+                        break;
+                    case 4:
+                        hintText.textContent = "We've created an element that's not in our enumeration, contradicting our assumption that we listed all elements of P(N).";
+                        break;
+                }
+            }
+            
+            // Initialize
+            updateHintText();
+        });
+    </script>
+</body>
+</html>
